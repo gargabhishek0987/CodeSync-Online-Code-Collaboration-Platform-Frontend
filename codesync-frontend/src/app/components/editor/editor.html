@@ -1,0 +1,257 @@
+<app-navbar></app-navbar>
+
+<div class="editor-layout d-flex w-100 animate-fade-in" style="height: calc(100vh - 64px);">
+  <!-- File Explorer Sidebar -->
+  <div class="sidebar glass-card border-0 rounded-0 border-end border-secondary d-flex flex-column" style="width: 280px; z-index: 10;">
+    <div class="p-3 border-bottom border-secondary bg-dark bg-opacity-50">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="text-light text-uppercase fw-bolder letter-spacing-1 mb-0 fs-7">Explorer</h6>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-icon text-primary p-1" title="New File" (click)="createFile()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3zM8 5.5a.5.5 0 0 0-1 0v1.5H5.5a.5.5 0 0 0 0 1H7v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H8V5.5z"/></svg>
+          </button>
+          <button class="btn btn-sm btn-icon text-success p-1" title="New Folder" (click)="createFolder()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3.672a1.5 1.5 0 0 1 1.06.44l1.17 1.17a1.5 1.5 0 0 0 1.06.44h4.538A1.5 1.5 0 0 1 15 4.5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5v-11zM2.5 2a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-10a.5.5 0 0 0-.5-.5h-4.538a2.5 2.5 0 0 1-1.768-.732l-1.17-1.17a.5.5 0 0 0-.354-.146H2.5zM8 8a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12.5a.5.5 0 0 1-1 0V11H6a.5.5 0 0 1 0-1h1.5V8.5A.5.5 0 0 1 8 8z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="file-list py-2 overflow-auto flex-grow-1 custom-scrollbar">
+      <div *ngFor="let file of files" (click)="selectFile(file)"
+           class="file-item px-3 py-2 d-flex align-items-center justify-content-between transition-all cursor-pointer group"
+           [class.active]="selectedFile?.id === file.id"
+           [class.bg-primary]="selectedFile?.id === file.id"
+           [class.bg-opacity-10]="selectedFile?.id === file.id">
+        <div class="d-flex align-items-center gap-2 flex-grow-1 min-width-0">
+          <span class="file-icon text-muted flex-shrink-0" [class.text-primary]="selectedFile?.id === file.id">
+          <svg *ngIf="!file.isFolder && file.language === 'javascript'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#f7df1e" viewBox="0 0 16 16"><path d="M0 0h16v16H0z" fill="none"/><path d="M11.944 11.455c-.279-.204-.633-.356-1.042-.441-.409-.085-.873-.127-1.391-.127-.518 0-.982.042-1.391.127-.409.085-.763.237-1.042.441-.279.204-.492.464-.633.774-.141.31-.205.67-.205 1.077 0 .408.064.768.205 1.078.141.31.354.57.633.774.279.204.633.356 1.042.441.409.085.873.127 1.391.127.518 0 .982-.042 1.391-.127.409-.085.763-.237 1.042-.441.279-.204.492-.464.633-.774.141-.31.205-.67.205-1.078 0-.407-.064-.767-.205-1.077-.141-.31-.354-.57-.633-.774zm-.179 1.834c0 .245-.038.461-.114.646-.076.185-.183.337-.323.456-.14.119-.313.204-.52.256-.207.052-.443.078-.71.078-.267 0-.503-.026-.71-.078-.207-.052-.38-.137-.52-.256-.14-.119-.247-.271-.323-.456-.076-.185-.114-.401-.114-.646 0-.244.038-.46.114-.645.076-.185.183-.337.323-.456.14-.119.313-.204.52-.256.207-.052.443-.078.71-.078.267 0 .503.026.71.078.207.052.38.137.52.256.14.119.247.271.323.456.076.185.114.401.114.645zm-6.19-2.31c-.279-.204-.633-.356-1.042-.441-.409-.085-.873-.127-1.391-.127-.518 0-.982.042-1.391.127-.409.085-.763.237-1.042.441-.279.204-.492.464-.633.774-.141.31-.205.67-.205 1.077 0 .408.064.768.205 1.078.141.31.354.57.633.774.279.204.633.356 1.042.441.409.085.873.127 1.391.127.518 0 .982-.042 1.391-.127.409-.085.763-.237 1.042-.441.279-.204.492-.464.633-.774.141-.31.205-.67.205-1.078 0-.407-.064-.767-.205-1.077-.141-.31-.354-.57-.633-.774zm-.179 1.834c0 .245-.038.461-.114.646-.076.185-.183.337-.323.456-.14.119-.313.204-.52.256-.207.052-.443.078-.71.078-.267 0-.503-.026-.71-.078-.207-.052-.38-.137-.52-.256-.14-.119-.247-.271-.323-.456-.076-.185-.114-.401-.114-.646 0-.244.038-.46.114-.645.076-.185.183-.337.323-.456.14-.119.313-.204.52-.256.207-.052.443-.078.71-.078.267 0 .503.026.71.078.207.052.38.137.52.256.14.119.247.271.323.456.076.185.114.401.114.645z"/></svg>
+          <svg *ngIf="!file.isFolder && file.language !== 'javascript'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z"/></svg>
+          <svg *ngIf="file.isFolder" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/></svg>
+        </span>
+        <span class="file-name small fw-medium text-truncate flex-grow-1" [class.text-white]="selectedFile?.id === file.id">{{ file.name }}</span>
+        </div>
+        
+        <!-- Context Actions -->
+        <div class="file-actions d-flex gap-2 ms-2">
+          <button class="btn btn-sm btn-icon text-info p-0" title="Rename" (click)="renameFile(file, $event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+          </button>
+          <button class="btn btn-sm btn-icon text-danger p-0" title="Delete" (click)="deleteFile(file, $event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Editor Area -->
+  <div class="main-content d-flex flex-column flex-grow-1 position-relative">
+    <!-- Premium Toolbar -->
+    <div class="toolbar d-flex justify-content-between align-items-center px-4 py-2 bg-dark bg-opacity-75 border-bottom border-secondary backdrop-blur" style="height: 56px;">
+      <div class="d-flex align-items-center gap-4">
+        <div class="d-flex align-items-center gap-2 text-muted small fw-medium">
+          <span class="text-white opacity-75">workspace</span>
+          <span>/</span>
+          <span class="text-white">{{ selectedFile?.name || 'Select a file' }}</span>
+        </div>
+        <span *ngIf="selectedFile" class="badge bg-secondary bg-opacity-25 text-light border border-secondary rounded-pill px-3 py-1">
+          {{ selectedFile?.language }}
+        </span>
+      </div>
+      
+      <div class="d-flex align-items-center gap-4">
+        <div class="avatar-group d-flex">
+          <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center border border-2 border-dark" 
+               style="width: 28px; height: 28px; font-size: 10px; z-index: 10;" title="You">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
+          </div>
+          <div *ngFor="let user of activeUsers" 
+               class="avatar rounded-circle d-flex align-items-center justify-content-center border border-2 border-dark bg-info"
+               style="width: 28px; height: 28px; font-size: 10px; margin-left: -8px;" [title]="user">
+            {{ user.substring(0, 2).toUpperCase() }}
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-2 rounded-2" (click)="toggleSynopsis()">
+            Synopsis
+          </button>
+          <div class="vr bg-secondary opacity-25" style="height: 24px;"></div>
+          <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-2 rounded-2" (click)="saveFile()" [disabled]="!selectedFile">
+            Save
+          </button>
+          <button class="btn btn-sm btn-outline-warning d-flex align-items-center gap-2 rounded-2" (click)="openCommitModal()" [disabled]="!selectedFile">
+            Commit
+          </button>
+          <button class="btn btn-sm btn-success d-flex align-items-center gap-2 rounded-2 shadow-sm" (click)="runCode()" [disabled]="executing || !selectedFile">
+            <span *ngIf="executing" class="spinner-border spinner-border-sm"></span>
+            Run Code
+          </button>
+          <button class="btn btn-sm btn-icon text-muted p-1 hover-text-white" (click)="toggleTerminal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3zm2-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z"/><path d="M0 12h16v1H0v-1zM2 4.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monaco Editor -->
+    <div class="editor-container flex-grow-1 position-relative bg-dark">
+      <div *ngIf="!selectedFile" class="position-absolute top-50 start-50 translate-middle text-center opacity-50">
+        <h5 class="text-light fw-bold">Select a file to start coding</h5>
+      </div>
+      <ngx-monaco-editor *ngIf="selectedFile" [options]="editorOptions" [(ngModel)]="code" (onInit)="onEditorInit($event)" class="h-100 w-100"></ngx-monaco-editor>
+    </div>
+
+    <!-- Terminal / Output / History Panel -->
+    <div *ngIf="isTerminalOpen" class="output-panel glass-card border-0 rounded-0 border-top border-secondary d-flex flex-column animate-slide-up" style="height: 35%;">
+      <div class="p-0 px-2 border-bottom border-secondary d-flex justify-content-between align-items-center bg-dark" style="background-color: #111827 !important;">
+        <div class="d-flex align-items-center gap-0">
+          <!-- Terminal Tab -->
+          <button class="btn btn-sm px-3 py-2 transition-all rounded-0 d-flex align-items-center" 
+                  [style.color]="activeTab === 'terminal' ? '#3b82f6' : '#cbd5e1'"
+                  [style.border-bottom]="activeTab === 'terminal' ? '2px solid #3b82f6' : '2px solid transparent'"
+                  [style.background]="activeTab === 'terminal' ? 'rgba(59, 130, 246, 0.1)' : 'transparent'"
+                  (click)="activeTab = 'terminal'">
+            <span class="fw-bold small letter-spacing-1">TERMINAL</span>
+          </button>
+          
+          <!-- Output Tab -->
+          <button class="btn btn-sm px-3 py-2 transition-all rounded-0 d-flex align-items-center" 
+                  [style.color]="activeTab === 'output' ? '#3b82f6' : '#cbd5e1'"
+                  [style.border-bottom]="activeTab === 'output' ? '2px solid #3b82f6' : '2px solid transparent'"
+                  [style.background]="activeTab === 'output' ? 'rgba(59, 130, 246, 0.1)' : 'transparent'"
+                  (click)="activeTab = 'output'">
+            <span class="fw-bold small letter-spacing-1">OUTPUT</span>
+          </button>
+          
+          <!-- History Tab -->
+          <button class="btn btn-sm px-3 py-2 transition-all rounded-0 d-flex align-items-center" 
+                  [style.color]="activeTab === 'history' ? '#3b82f6' : '#cbd5e1'"
+                  [style.border-bottom]="activeTab === 'history' ? '2px solid #3b82f6' : '2px solid transparent'"
+                  [style.background]="activeTab === 'history' ? 'rgba(59, 130, 246, 0.1)' : 'transparent'"
+                  (click)="activeTab = 'history'; loadHistory()">
+            <span class="fw-bold small letter-spacing-1">HISTORY</span>
+          </button>
+        </div>
+        <button class="btn btn-link btn-sm text-muted p-1" (click)="output = ''">Clear</button>
+      </div>
+      
+      <div class="flex-grow-1 p-3 bg-dark overflow-auto custom-scrollbar font-monospace">
+        <!-- Terminal -->
+        <div *ngIf="activeTab === 'terminal'">
+          <div class="text-primary mb-2 small fw-bold">codesync@workspace:~$</div>
+          <pre class="mb-0 text-success-light small lh-lg">{{ output }}</pre>
+        </div>
+        <!-- Output -->
+        <div *ngIf="activeTab === 'output'">
+          <pre class="mb-0 text-light small lh-lg">{{ output || 'No execution output.' }}</pre>
+        </div>
+        <!-- History -->
+        <div *ngIf="activeTab === 'history'">
+          <div class="text-muted small mb-3 d-flex justify-content-between align-items-center">
+            <span>Version History</span>
+            <button class="btn btn-sm btn-link text-primary p-0" (click)="loadHistory()">Refresh</button>
+          </div>
+          <div *ngIf="history.length === 0" class="text-center py-4 text-muted small">No versions saved yet.</div>
+          <div class="version-list">
+            <div *ngFor="let snapshot of history" class="version-item p-2 mb-2 border border-secondary rounded bg-dark bg-opacity-50 d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-white small fw-bold">{{ snapshot.commitMessage }}</div>
+                <div class="text-muted" style="font-size: 0.7rem;">{{ snapshot.createdAt | date:'medium' }}</div>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" (click)="restoreVersion(snapshot)">Restore</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Commit Modal -->
+<div class="modal-backdrop d-flex align-items-center justify-content-center" *ngIf="showCommitModal" style="z-index: 2000; background: rgba(0,0,0,0.8);">
+  <div class="glass-card p-4 shadow-lg" style="width: 400px; border: 1px solid rgba(255,255,255,0.1);">
+    <h5 class="text-white mb-3">Commit Changes</h5>
+    <div class="mb-3">
+      <label class="form-label text-muted small text-uppercase fw-bold">Commit Message</label>
+      <textarea class="form-control bg-dark border-secondary text-light" rows="3" [(ngModel)]="commitMessage" placeholder="What changed?"></textarea>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-link text-muted" (click)="showCommitModal = false">Cancel</button>
+      <button class="btn btn-warning px-4" (click)="createSnapshot()" [disabled]="!commitMessage?.trim()">Commit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Synopsis Modal -->
+<div class="modal-backdrop d-flex align-items-center justify-content-center" *ngIf="showSynopsisModal" style="z-index: 2000; background: rgba(0,0,0,0.8);">
+  <div class="glass-card p-4 shadow-lg" style="width: 600px; max-height: 80vh; overflow-y: auto;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="text-white mb-0">Project Synopsis</h4>
+      <button class="btn-close btn-close-white" (click)="showSynopsisModal = false"></button>
+    </div>
+    
+    <div class="mb-4">
+      <h6 class="text-primary mb-2">Actors</h6>
+      <div class="d-flex gap-2 mb-2">
+        <input type="text" class="form-control bg-dark border-secondary text-light" [(ngModel)]="newActor" placeholder="Add actor">
+        <button class="btn btn-sm btn-primary" (click)="addActor()">Add</button>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <span *ngFor="let a of synopsis.actors; let i = index" class="badge bg-secondary p-2">{{ a }} <span class="ms-1 cursor-pointer" (click)="removeActor(i)">&times;</span></span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h6 class="text-info mb-2">Use Cases</h6>
+      <div class="d-flex gap-2 mb-2">
+        <input type="text" class="form-control bg-dark border-secondary text-light" [(ngModel)]="newUseCase" placeholder="Add use case">
+        <button class="btn btn-sm btn-info text-white" (click)="addUseCase()">Add</button>
+      </div>
+      <ul class="list-group list-group-flush bg-transparent">
+        <li *ngFor="let u of synopsis.useCases; let i = index" class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between">{{ u }} <button class="btn btn-sm btn-link text-danger" (click)="removeUseCase(i)">Remove</button></li>
+      </ul>
+    </div>
+
+    <div class="mb-4">
+      <h6 class="text-success mb-2">Requirements</h6>
+      <div class="d-flex gap-2 mb-2">
+        <input type="text" class="form-control bg-dark border-secondary text-light" [(ngModel)]="newRequirement" placeholder="Add requirement">
+        <button class="btn btn-sm btn-success" (click)="addRequirement()">Add</button>
+      </div>
+      <ul class="list-group list-group-flush bg-transparent">
+        <li *ngFor="let r of synopsis.requirements; let i = index" class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between">{{ r }} <button class="btn btn-sm btn-link text-danger" (click)="removeRequirement(i)">Remove</button></li>
+      </ul>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+      <button class="btn btn-outline-secondary" (click)="showSynopsisModal = false">Close</button>
+      <button class="btn btn-primary px-4" (click)="saveSynopsis()">Save Synopsis</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create File Modal -->
+<div class="modal-backdrop d-flex align-items-center justify-content-center" *ngIf="showCreateModal" style="z-index: 2000; background: rgba(0,0,0,0.8);">
+  <div class="glass-card p-4 shadow-lg" style="width: 350px;">
+    <h5 class="text-white mb-3">{{ isCreatingFolder ? 'New Folder' : 'New File' }}</h5>
+    <input type="text" class="form-control bg-dark border-secondary text-light mb-3" [(ngModel)]="newItemName" placeholder="Name">
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-link text-muted" (click)="showCreateModal = false">Cancel</button>
+      <button class="btn btn-primary px-4" (click)="confirmCreate()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-backdrop d-flex align-items-center justify-content-center" *ngIf="showDeleteModal" style="z-index: 2000; background: rgba(0,0,0,0.8);">
+  <div class="glass-card p-4 shadow-lg text-center" style="width: 350px;">
+    <h5 class="text-white mb-2">Delete Item?</h5>
+    <p class="text-muted small mb-4">Are you sure you want to delete {{ itemToDelete?.name }}?</p>
+    <div class="d-flex justify-content-center gap-2">
+      <button class="btn btn-secondary px-4" (click)="showDeleteModal = false">Cancel</button>
+      <button class="btn btn-danger px-4" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>

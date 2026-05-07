@@ -1,0 +1,38 @@
+.navbar {
+  height: 70px;
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.logo-circle {
+  background: var(--primary-color);
+  color: white;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.2rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.smaller {
+  font-size: 0.75rem;
+}
+
+.link-primary {
+  color: var(--primary-color);
+}

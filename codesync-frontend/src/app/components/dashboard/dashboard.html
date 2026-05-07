@@ -1,0 +1,144 @@
+<app-navbar></app-navbar>
+
+<div class="container py-5">
+  <!-- Premium Header -->
+  <div class="row align-items-center mb-5 animate-fade-in" style="animation-delay: 0.1s;">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/>
+          </svg>
+        </div>
+        <h1 class="fw-bolder mb-0 display-5 gradient-text">My Workspaces</h1>
+      </div>
+      <p class="text-muted fs-5 ms-2 mb-0">Collaborate, code, and conquer in real-time.</p>
+    </div>
+    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+      <button class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2 shadow-lg" (click)="showModal = true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+        </svg>
+        New Project
+      </button>
+    </div>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="row g-4">
+    <div *ngFor="let project of projects; let i = index" class="col-md-6 col-lg-4 animate-fade-in" [style.animation-delay]="(i * 0.1 + 0.2) + 's'">
+      <div class="glass-card p-4 h-100 project-card d-flex flex-column position-relative overflow-hidden group">
+        <!-- Decoration Blob -->
+        <div class="position-absolute top-0 end-0 opacity-25 rounded-circle bg-secondary blur-3xl" style="width: 150px; height: 150px; transform: translate(30%, -30%); filter: blur(40px);"></div>
+        
+        <div class="d-flex justify-content-between align-items-start mb-4 position-relative z-1">
+          <div class="project-icon bg-dark p-3 rounded-4 border border-secondary shadow-sm">
+            <span class="fs-4">
+              {{ project.language === 'javascript' ? '🟨' : project.language === 'python' ? '🐍' : '💻' }}
+            </span>
+          </div>
+          <button class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2 opacity-50 hover-opacity-100 transition-all" (click)="deleteProject(project.id)" title="Delete Project">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+              <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+            </svg>
+          </button>
+        </div>
+        
+        <h4 class="fw-bold mb-2 position-relative z-1 text-white">{{ project.name }}</h4>
+        <p class="text-muted small mb-4 line-clamp position-relative z-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          {{ project.description || 'No description provided' }}
+        </p>
+        
+        <div class="mt-auto position-relative z-1">
+          <div class="d-flex gap-2 mb-4">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-medium">
+              {{ project.language | uppercase }}
+            </span>
+            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-medium">
+              {{ project.visibility }}
+            </span>
+          </div>
+          
+          <a [routerLink]="['/editor', project.id]" class="btn btn-outline-light w-100 rounded-pill py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 group-hover-bg">
+            Open Workspace
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="projects.length === 0" class="col-12 animate-fade-in" style="animation-delay: 0.3s;">
+      <div class="glass-card text-center py-5 px-4 shadow-sm border-dashed">
+        <div class="empty-state-icon bg-primary bg-opacity-10 d-inline-flex p-4 rounded-circle mb-4 text-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2zm2.354 6.854-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 9.293V5.5a.5.5 0 0 1 1 0v3.793l1.146-1.147a.5.5 0 0 1 .708.708z"/>
+          </svg>
+        </div>
+        <h3 class="fw-bold mb-3">Your workspace is empty</h3>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">Get started by creating a new collaborative project. Write, run, and share code instantly.</p>
+        <button class="btn btn-primary btn-lg rounded-pill px-5 shadow" (click)="showModal = true">Create First Project</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Premium Modal -->
+<div *ngIf="showModal" class="modal-backdrop d-flex align-items-center justify-content-center p-3 animate-fade-in">
+  <div class="glass-card p-0 modal-card overflow-hidden shadow-lg position-relative" style="width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.15);">
+    <!-- Modal Header with gradient -->
+    <div class="bg-dark p-4 border-bottom border-secondary position-relative overflow-hidden">
+      <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient opacity-25" style="background: linear-gradient(135deg, var(--primary-color), transparent);"></div>
+      <div class="d-flex justify-content-between align-items-center position-relative z-1">
+        <h3 class="fw-bold mb-0 text-white">New Workspace</h3>
+        <button class="btn-close btn-close-white opacity-75" (click)="showModal = false; error = ''"></button>
+      </div>
+    </div>
+    
+    <!-- Modal Body -->
+    <div class="p-4 p-md-5">
+      <div class="mb-4">
+        <label class="form-label text-light fw-medium mb-2">Workspace Name</label>
+        <input type="text" class="form-control form-control-lg bg-dark text-white border-secondary focus-ring-primary" [(ngModel)]="newProject.name" placeholder="e.g. awesome-api-server">
+      </div>
+      
+      <div class="mb-4">
+        <label class="form-label text-light fw-medium mb-2">Description</label>
+        <textarea class="form-control bg-dark text-white border-secondary" [(ngModel)]="newProject.description" rows="3" placeholder="Briefly describe what you're building..."></textarea>
+      </div>
+      
+      <div class="row g-3 mb-5">
+        <div class="col-6">
+          <label class="form-label text-light fw-medium mb-2">Language</label>
+          <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="newProject.language">
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label class="form-label text-light fw-medium mb-2">Visibility</label>
+          <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="newProject.visibility">
+            <option value="PRIVATE">Private</option>
+            <option value="PUBLIC">Public</option>
+          </select>
+        </div>
+      </div>
+      
+      <div *ngIf="error" class="alert bg-danger bg-opacity-10 border border-danger text-danger py-3 mb-4 rounded-3 d-flex align-items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+        {{ error }}
+      </div>
+      
+      <div class="d-grid">
+        <button class="btn btn-primary btn-lg rounded-pill fw-bold" (click)="createProject()" [disabled]="!newProject.name">
+          Launch Workspace
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+.admin-container {
+    min-height: calc(100vh - 64px);
+    background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent 400px),
+                radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.05), transparent 400px);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link {
+    transition: all 0.2s ease;
+    border-radius: 0 !important;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    opacity: 0.8 !important;
+}
+
+.active-tab {
+    background: rgba(59, 130, 246, 0.1) !important;
+    opacity: 1 !important;
+    border-bottom: 2px solid #3b82f6 !important;
+}
+
+.custom-table {
+    --bs-table-bg: transparent;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.02);
+    margin-bottom: 0;
+}
+
+.custom-table th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    padding: 1rem 1.5rem;
+}
+
+.custom-table td {
+    padding: 1.25rem 1.5rem;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.hover-text-danger:hover {
+    color: #ef4444 !important;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

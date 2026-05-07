@@ -1,0 +1,257 @@
+<app-navbar></app-navbar>
+
+<div class="admin-container p-4">
+  <div class="container-fluid">
+    <div class="row mb-4">
+      <div class="col-12">
+        <h2 class="text-white fw-bold d-flex align-items-center gap-3">
+          <i class="bi bi-shield-lock-fill text-primary"></i>
+          Admin Control Center
+        </h2>
+        <p class="text-muted">Manage system users, projects, and monitor platform health.</p>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-3">
+        <div class="glass-card p-4 h-100 border-primary border-opacity-25 border-start border-4">
+          <div class="d-flex justify-content-between">
+            <div>
+              <p class="text-muted small text-uppercase fw-bold mb-1">Total Users</p>
+              <h3 class="text-white mb-0">{{ stats.totalUsers }}</h3>
+            </div>
+            <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary">
+              <i class="bi bi-people fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="glass-card p-4 h-100 border-success border-opacity-25 border-start border-4">
+          <div class="d-flex justify-content-between">
+            <div>
+              <p class="text-muted small text-uppercase fw-bold mb-1">Total Projects</p>
+              <h3 class="text-white mb-0">{{ stats.totalProjects }}</h3>
+            </div>
+            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success">
+              <i class="bi bi-journal-code fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="glass-card p-4 h-100 border-info border-opacity-25 border-start border-4">
+          <div class="d-flex justify-content-between">
+            <div>
+              <p class="text-muted small text-uppercase fw-bold mb-1">Active Sessions</p>
+              <h3 class="text-white mb-0">{{ stats.activeSessions }}</h3>
+            </div>
+            <div class="bg-info bg-opacity-10 p-3 rounded-3 text-info">
+              <i class="bi bi-lightning-charge fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="glass-card p-4 h-100 border-warning border-opacity-25 border-start border-4">
+          <div class="d-flex justify-content-between">
+            <div>
+              <p class="text-muted small text-uppercase fw-bold mb-1">System Status</p>
+              <h3 class="text-white mb-0">{{ stats.systemHealth }}</h3>
+            </div>
+            <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning">
+              <i class="bi bi-activity fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+      <div class="col-12">
+        <div class="glass-card overflow-hidden">
+          <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 p-0">
+            <ul class="nav nav-tabs border-0 px-3">
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'users'" (click)="activeTab = 'users'">
+                  <i class="bi bi-people-fill me-2"></i>User Management
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'projects'" (click)="activeTab = 'projects'">
+                  <i class="bi bi-folder-fill me-2"></i>Project Management
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'execution'" (click)="activeTab = 'execution'">
+                  <i class="bi bi-play-circle-fill me-2"></i>Execution Jobs
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'analytics'" (click)="activeTab = 'analytics'">
+                  <i class="bi bi-graph-up-arrow me-2"></i>System Analytics
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body p-4">
+            
+            <!-- Users Tab -->
+            <div *ngIf="activeTab === 'users'" class="animate-fade-in">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table">
+                  <thead>
+                    <tr>
+                      <th class="border-secondary border-opacity-25">User</th>
+                      <th class="border-secondary border-opacity-25">Email</th>
+                      <th class="border-secondary border-opacity-25">Role</th>
+                      <th class="border-secondary border-opacity-25">Joined</th>
+                      <th class="border-secondary border-opacity-25 text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let user of users">
+                      <td>
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="avatar-sm rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold">
+                            {{ user.username.substring(0,1).toUpperCase() }}
+                          </div>
+                          <span class="text-white">{{ user.username }}</span>
+                        </div>
+                      </td>
+                      <td class="text-muted">{{ user.email }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="user.role === 'ADMIN' ? 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25' : 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25'">
+                          {{ user.role }}
+                        </span>
+                      </td>
+                      <td class="text-muted small">{{ user.createdAt | date:'mediumDate' }}</td>
+                      <td class="text-end">
+                        <button class="btn btn-icon text-muted hover-text-white me-2"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn-icon text-muted hover-text-danger" (click)="deleteUser(user.id)"><i class="bi bi-trash3"></i></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div *ngIf="activeTab === 'projects'" class="animate-fade-in">
+               <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table">
+                  <thead>
+                    <tr>
+                      <th class="border-secondary border-opacity-25">Project Name</th>
+                      <th class="border-secondary border-opacity-25">Owner ID</th>
+                      <th class="border-secondary border-opacity-25">Language</th>
+                      <th class="border-secondary border-opacity-25">Visibility</th>
+                      <th class="border-secondary border-opacity-25 text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let project of projects">
+                      <td class="text-white fw-medium">{{ project.name }}</td>
+                      <td class="text-muted small">{{ project.ownerId }}</td>
+                      <td><span class="badge bg-secondary bg-opacity-25">{{ project.language }}</span></td>
+                      <td>
+                        <span class="small" [class.text-success]="project.visibility === 'PUBLIC'" [class.text-warning]="project.visibility === 'PRIVATE'">
+                          <i class="bi" [ngClass]="project.visibility === 'PUBLIC' ? 'bi-globe' : 'bi-lock-fill'"></i>
+                          {{ project.visibility }}
+                        </span>
+                      </td>
+                      <td class="text-end">
+                        <button [routerLink]="['/editor', project.id]" class="btn btn-icon text-muted hover-text-primary me-2"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-icon text-muted hover-text-danger" (click)="deleteProject(project.id)"><i class="bi bi-trash3"></i></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Execution Jobs Tab -->
+            <div *ngIf="activeTab === 'execution'" class="animate-fade-in">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table">
+                  <thead>
+                    <tr>
+                      <th class="border-secondary border-opacity-25">Job ID</th>
+                      <th class="border-secondary border-opacity-25">Language</th>
+                      <th class="border-secondary border-opacity-25">Status</th>
+                      <th class="border-secondary border-opacity-25">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let job of executionJobs">
+                      <td class="text-white small font-monospace">{{ job.id }}</td>
+                      <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ job.language }}</span></td>
+                      <td>
+                        <span class="badge" [ngClass]="{
+                          'bg-success bg-opacity-10 text-success border border-success border-opacity-25': job.status === 'COMPLETED',
+                          'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25': job.status === 'PENDING' || job.status === 'RUNNING',
+                          'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25': job.status === 'FAILED'
+                        }">
+                          {{ job.status }}
+                        </span>
+                      </td>
+                      <td class="text-muted small">{{ job.createdAt | date:'short' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div *ngIf="activeTab === 'analytics'" class="animate-fade-in">
+               <div class="row g-4">
+                 <div class="col-md-6">
+                   <div class="glass-card p-4">
+                     <h5 class="text-white mb-4">Platform Overview</h5>
+                     <div class="d-flex flex-column gap-3">
+                       <div class="d-flex justify-content-between align-items-center">
+                         <span class="text-muted">Total Users</span>
+                         <span class="text-white fw-bold">{{ stats.totalUsers }}</span>
+                       </div>
+                       <div class="progress bg-dark" style="height: 6px;">
+                         <div class="progress-bar bg-primary" role="progressbar" [style.width]="'100%'"></div>
+                       </div>
+                       <div class="d-flex justify-content-between align-items-center mt-2">
+                         <span class="text-muted">Total Projects</span>
+                         <span class="text-white fw-bold">{{ stats.totalProjects }}</span>
+                       </div>
+                       <div class="progress bg-dark" style="height: 6px;">
+                         <div class="progress-bar bg-success" role="progressbar" [style.width]="'100%'"></div>
+                       </div>
+                       <div class="d-flex justify-content-between align-items-center mt-2">
+                         <span class="text-muted">Execution Jobs</span>
+                         <span class="text-white fw-bold">{{ executionJobs.length }}</span>
+                       </div>
+                       <div class="progress bg-dark" style="height: 6px;">
+                         <div class="progress-bar bg-info" role="progressbar" [style.width]="'100%'"></div>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+                 <div class="col-md-6">
+                   <div class="glass-card p-4">
+                     <h5 class="text-white mb-4">Language Distribution</h5>
+                     <div class="text-center py-4">
+                       <div class="bg-primary bg-opacity-10 p-4 rounded-circle d-inline-block mb-3">
+                         <i class="bi bi-pie-chart-fill fs-1 text-primary"></i>
+                       </div>
+                       <p class="text-muted small">Language analytics synchronized from system metadata.</p>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

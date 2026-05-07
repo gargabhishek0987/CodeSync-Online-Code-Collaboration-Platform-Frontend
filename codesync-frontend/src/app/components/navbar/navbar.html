@@ -1,0 +1,112 @@
+<nav class="navbar navbar-expand-lg border-bottom py-2 sticky-top backdrop-blur" style="background: rgba(11, 15, 25, 0.85); border-color: rgba(255,255,255,0.08) !important; z-index: 1050; height: 64px;">
+  <div class="container-fluid px-4">
+    <!-- Brand -->
+    <a class="navbar-brand fw-bolder d-flex align-items-center gap-2 text-decoration-none" routerLink="/dashboard">
+      <div class="bg-primary rounded px-2 py-1 shadow-sm d-flex align-items-center justify-content-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 16 16">
+          <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/>
+        </svg>
+      </div>
+      <span class="fs-4 text-white font-monospace letter-spacing-1" style="font-family: 'JetBrains Mono', monospace;">CodeSync</span>
+    </a>
+    
+    <!-- User Info & Actions -->
+    <div class="ms-auto d-flex align-items-center gap-3 gap-md-4">
+      <div *ngIf="!authService.isLoggedIn()" class="d-flex align-items-center gap-2">
+        <button [routerLink]="['/login']" class="btn btn-link text-white text-decoration-none px-3">Login</button>
+        <button [routerLink]="['/register']" class="btn btn-primary rounded-pill px-4">Get Started</button>
+      </div>
+
+      <div *ngIf="authService.isLoggedIn()" class="user-info d-flex align-items-center">
+        <!-- Notification Bell -->
+        <div class="position-relative">
+          <button class="btn btn-icon text-light hover-text-white position-relative p-2 me-2 rounded-circle border border-white border-opacity-10 shadow-sm" 
+                  style="background: rgba(255,255,255,0.08);" (click)="toggleNotifications()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+            </svg>
+            <span *ngIf="unreadCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-dark" style="margin-top: 5px; margin-left: -5px; font-size: 0.6rem;">
+              {{ unreadCount }}
+            </span>
+          </button>
+
+          <!-- Notifications Dropdown -->
+          <div class="notifications-dropdown glass-card border-secondary mt-2 shadow-lg py-0 overflow-hidden" 
+               [class.show]="notificationsOpen" 
+               style="min-width: 320px; display: {{ notificationsOpen ? 'block' : 'none' }}; right: 0; position: absolute; z-index: 1000;">
+            <div class="p-3 border-bottom border-secondary bg-dark d-flex justify-content-between align-items-center">
+              <h6 class="mb-0 fw-bold text-white">Notifications</h6>
+              <span class="badge bg-primary bg-opacity-10 text-primary small">{{ unreadCount }} New</span>
+            </div>
+            <div class="notification-list custom-scrollbar" style="max-height: 350px; overflow-y: auto;">
+              <div *ngIf="notifications.length === 0" class="p-4 text-center text-muted">
+                <p class="mb-0 small">No notifications yet</p>
+              </div>
+              <div *ngFor="let notif of notifications" 
+                   (click)="markAsRead(notif)"
+                   class="notification-item p-3 border-bottom border-white border-opacity-10 transition-all cursor-pointer hover-bg-white-soft"
+                   [class.unread]="!notif.read">
+                <div class="d-flex gap-3">
+                  <div class="flex-shrink-0 mt-1">
+                    <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-1 text-white small fw-medium">{{ notif.message }}</p>
+                    <span class="text-muted" style="font-size: 0.7rem;">{{ notif.createdAt | date:'shortTime' }}</span>
+                  </div>
+                  <div *ngIf="!notif.read" class="unread-dot bg-primary rounded-circle" style="width: 6px; height: 6px; margin-top: 15px;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="p-2 border-top border-secondary text-center bg-dark">
+              <button class="btn btn-link btn-sm text-primary text-decoration-none small">View All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="vr bg-secondary opacity-25 me-3" style="height: 24px;"></div>
+
+        <div class="d-flex align-items-center gap-3">
+          <div class="d-none d-md-flex flex-column align-items-end me-2">
+            <span class="text-white fw-bold lh-1 mb-1" style="font-size: 0.9rem;">{{ authService.currentUserValue?.username || 'User' }}</span>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 py-1 px-2" style="font-size: 0.65rem; font-weight: 800; letter-spacing: 0.8px;">DEVELOPER</span>
+          </div>
+          
+          <div class="dropdown">
+            <button class="btn p-0 border-0 d-flex align-items-center" type="button" (click)="dropdownOpen = !dropdownOpen">
+              <div class="avatar-container position-relative">
+                <div class="avatar rounded-circle d-flex align-items-center justify-content-center shadow-lg border border-2 border-primary border-opacity-50 transition-all hover-scale" 
+                     style="width: 42px; height: 42px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                  <span *ngIf="authService.currentUserValue?.username" class="fw-bolder fs-5">{{ authService.currentUserValue?.username?.substring(0, 1).toUpperCase() }}</span>
+                  <svg *ngIf="!authService.currentUserValue?.username" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                  </svg>
+                </div>
+                <div class="status-indicator position-absolute bottom-0 end-0 bg-success border border-2 border-dark rounded-circle" style="width: 12px; height: 12px;"></div>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark glass-card border-secondary mt-2 shadow-lg py-2" 
+                [class.show]="dropdownOpen" 
+                style="min-width: 220px; display: {{ dropdownOpen ? 'block' : 'none' }}; right: 0; left: auto; transform: none !important; position: absolute;">
+              <li><h6 class="dropdown-header text-muted text-uppercase letter-spacing-1 small">Account</h6></li>
+              <li *ngIf="authService.currentUserValue?.role === 'ADMIN'">
+                <a class="dropdown-item py-2 d-flex align-items-center gap-2 text-primary hover-bg-primary-soft fw-bold" routerLink="/admin" (click)="dropdownOpen = false">
+                  <i class="bi bi-shield-lock-fill"></i> Admin Panel
+                </a>
+              </li>
+              <li><a class="dropdown-item py-2 d-flex align-items-center gap-2 hover-bg-primary-soft" routerLink="/profile" (click)="dropdownOpen = false"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg> Profile</a></li>
+
+              <li><hr class="dropdown-divider border-secondary opacity-50"></li>
+              <li><button class="dropdown-item text-danger py-2 d-flex align-items-center gap-2 hover-bg-danger-soft fw-medium" (click)="logout()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg> Sign out</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

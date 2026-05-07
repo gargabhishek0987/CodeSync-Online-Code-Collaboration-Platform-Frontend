@@ -1,0 +1,99 @@
+<div
+  class="auth-container min-vh-100 d-flex align-items-center justify-content-center position-relative overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="position-absolute top-0 start-0 translate-middle rounded-circle bg-primary opacity-25 blur-3xl"
+    style="width: 400px; height: 400px; filter: blur(60px);"></div>
+  <div class="position-absolute bottom-0 end-0 translate-middle-y rounded-circle bg-secondary opacity-25 blur-3xl"
+    style="width: 500px; height: 500px; filter: blur(80px);"></div>
+
+  <div class="glass-card p-4 p-md-5 auth-card animate-fade-in shadow-2xl position-relative z-1"
+    style="max-width: 450px; width: 100%; border: 1px solid rgba(255,255,255,0.1);">
+    <div class="text-center mb-5">
+      <div class="d-inline-flex bg-primary bg-opacity-10 p-3 rounded-circle text-primary mb-3 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+          <path
+            d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.669 11.538a.498.498 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686zm.979-2.766a.625.625 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858zm.084-2.868C10.154 4.315 5.895 4.195 3.438 4.939a.75.75 0 1 1-.434-1.435c2.825-.855 7.515-.71 10.364 1.02a.75.75 0 0 1-.636 1.38z" />
+        </svg>
+      </div>
+      <h2 class="fw-bolder gradient-text display-6 mb-2">Welcome Back</h2>
+      <p class="text-muted">Sign in to continue your collaborative journey</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="mb-4">
+        <label class="form-label text-light fw-medium small mb-2">Username or Email</label>
+        <input type="text" name="username"
+          class="form-control form-control-lg bg-dark text-white border-secondary focus-ring-primary transition-all"
+          [(ngModel)]="credentials.usernameOrEmail" required placeholder="name@company.com">
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="form-label text-light fw-medium small mb-0">Password</label>
+          <a href="#" class="text-primary text-decoration-none small hover-underline">Forgot password?</a>
+        </div>
+        <input type="password" name="password"
+          class="form-control form-control-lg bg-dark text-white border-secondary focus-ring-primary transition-all"
+          [(ngModel)]="credentials.password" required placeholder="••••••••">
+      </div>
+
+      <div *ngIf="error"
+        class="alert bg-danger bg-opacity-10 border border-danger text-danger py-3 small mb-4 rounded-3 d-flex align-items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+          <path
+            d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
+        </svg>
+        {{ error }}
+      </div>
+
+      <button type="submit"
+        class="btn btn-primary btn-lg w-100 mb-4 rounded-pill fw-bold shadow position-relative overflow-hidden group"
+        [disabled]="loading || !loginForm.valid">
+        <span class="position-relative z-1 d-flex align-items-center justify-content-center gap-2">
+          {{ loading ? 'Authenticating...' : 'Sign In' }}
+          <svg *ngIf="!loading" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+            class="transition-all group-hover-translate-x" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+          </svg>
+        </span>
+      </button>
+
+      <div class="d-flex align-items-center mb-4 text-muted small">
+        <div class="flex-grow-1 border-bottom border-secondary opacity-25"></div>
+        <span class="px-3">or continue with</span>
+        <div class="flex-grow-1 border-bottom border-secondary opacity-25"></div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6">
+          <button type="button" (click)="socialLogin('google')"
+            class="btn btn-outline-secondary w-100 py-2 d-flex align-items-center justify-content-center gap-2 rounded-3 border-secondary opacity-75 hover-opacity-100 transition-all text-white text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0c2.158 0 3.92.759 5.236 2.01l-2.227 2.227C10.104 3.428 9.176 3 8 3c-2.459 0-4.456 1.997-4.456 4.456s1.997 4.456 4.456 4.456c1.603 0 2.871-.531 3.738-1.391.802-.801 1.29-1.954 1.29-3.418a1 1 0 0 1 .054-.351h.003h-5.04v-2.19h7.093z" />
+            </svg>
+            Google
+          </button>
+        </div>
+        <div class="col-6">
+          <button type="button" (click)="socialLogin('github')"
+            class="btn btn-outline-secondary w-100 py-2 d-flex align-items-center justify-content-center gap-2 rounded-3 border-secondary opacity-75 hover-opacity-100 transition-all text-white text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
+            </svg>
+            GitHub
+          </button>
+        </div>
+      </div>
+
+      <p class="text-center text-muted mb-0">
+        New to CodeSync? <a routerLink="/register"
+          class="text-primary text-decoration-none fw-semibold border-bottom border-primary border-opacity-50 pb-1 hover-border-opacity-100 transition-all">Create
+          an account</a>
+      </p>
+    </form>
+  </div>
+</div>

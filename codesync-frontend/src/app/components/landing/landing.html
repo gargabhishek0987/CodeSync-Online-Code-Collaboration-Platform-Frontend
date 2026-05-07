@@ -1,0 +1,157 @@
+<app-navbar></app-navbar>
+
+<div class="landing-container">
+  <!-- Hero Section -->
+  <section class="hero-section text-center d-flex align-items-center">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 text-lg-start animate-fade-in">
+          <h1 class="display-3 fw-bold text-white mb-4">
+            Build the Future of <span class="text-primary-gradient">Collaboration</span>
+          </h1>
+          <p class="lead text-muted mb-5 fs-4">
+            CodeSync is a professional-grade microservices platform for real-time collaborative coding, 
+            cloud execution, and project management.
+          </p>
+          <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+            <button *ngIf="!isLoggedIn()" [routerLink]="['/register']" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg hover-scale">
+              Get Started for Free
+            </button>
+            <button *ngIf="isLoggedIn()" [routerLink]="['/dashboard']" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg hover-scale">
+              Go to Dashboard
+            </button>
+            <button class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill hover-scale">
+              Live Demo
+            </button>
+          </div>
+          
+          <div class="mt-5 d-flex align-items-center gap-4 opacity-50 justify-content-center justify-content-lg-start">
+            <span class="small text-uppercase letter-spacing-2">Trusted by teams at:</span>
+            <div class="d-flex gap-4">
+               <i class="bi bi-github fs-4"></i>
+               <i class="bi bi-microsoft fs-4"></i>
+               <i class="bi bi-google fs-4"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 mt-5 mt-lg-0 animate-float">
+          <div class="hero-image-wrapper">
+             <img src="/assets/hero.png" 
+                  alt="CodeSync Platform" class="img-fluid rounded-4 shadow-2xl border border-secondary border-opacity-25">
+             <div class="blob-gradient"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section py-5">
+    <div class="container py-5">
+      <div class="text-center mb-5 animate-slide-up">
+        <h2 class="display-5 fw-bold text-white">Powerful Features</h2>
+        <div class="divider mx-auto mb-4"></div>
+        <p class="text-muted fs-5">Everything you need for seamless development in one platform.</p>
+      </div>
+
+      <div class="row g-4">
+        <div *ngFor="let feature of features" class="col-md-4 animate-fade-in-up">
+          <div class="feature-card glass-card p-5 h-100 transition-all hover-translate-y">
+            <div class="feature-icon mb-4">
+              <i class="bi" [ngClass]="feature.icon"></i>
+            </div>
+            <h3 class="h4 text-white mb-3">{{ feature.title }}</h3>
+            <p class="text-muted lh-lg">{{ feature.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Public Projects Section -->
+  <section class="public-projects-section py-5 bg-dark bg-opacity-25 border-top border-bottom border-secondary border-opacity-10">
+    <div class="container py-5">
+      <div class="text-center mb-5 animate-slide-up">
+        <h2 class="display-5 fw-bold text-white">Explore Public Projects</h2>
+        <div class="divider mx-auto mb-4"></div>
+        <p class="text-muted fs-5">Discover and learn from community projects without logging in.</p>
+        
+        <!-- Search and Filter -->
+        <div class="row justify-content-center mt-4">
+          <div class="col-md-6 d-flex gap-2">
+            <input type="text" class="form-control bg-dark text-white border-secondary" 
+                   placeholder="Search projects..." [(ngModel)]="searchQuery" (keyup.enter)="loadPublicProjects()">
+            <select class="form-select bg-dark text-white border-secondary w-auto" 
+                    [(ngModel)]="searchLanguage" (change)="loadPublicProjects()">
+              <option value="">All Languages</option>
+              <option value="javascript">JavaScript</option>
+              <option value="typescript">TypeScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+            </select>
+            <button class="btn btn-primary px-4" (click)="loadPublicProjects()">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects Grid -->
+      <div class="row g-4" *ngIf="publicProjects.length > 0; else noProjects">
+        <div *ngFor="let project of publicProjects" class="col-md-6 col-lg-4 animate-fade-in-up">
+          <div class="card glass-card h-100 transition-all hover-translate-y border border-secondary border-opacity-25">
+            <div class="card-body p-4 d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title text-white fw-bold mb-0 text-truncate" style="max-width: 80%;">
+                  <i class="bi bi-journal-code text-primary me-2"></i>{{ project.name }}
+                </h5>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ project.language }}</span>
+              </div>
+              <p class="card-text text-muted small mb-4 flex-grow-1">{{ project.description || 'No description provided.' }}</p>
+              
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary border-opacity-25">
+                <div class="d-flex gap-3 text-muted small">
+                  <span title="Stars"><i class="bi bi-star-fill text-warning me-1"></i>{{ project.starCount || 0 }}</span>
+                  <span title="Forks"><i class="bi bi-diagram-2-fill text-info me-1"></i>{{ project.forkCount || 0 }}</span>
+                </div>
+                <button [routerLink]="['/editor', project.id]" class="btn btn-sm btn-outline-light rounded-pill px-3 transition-all hover-bg-white hover-text-dark">
+                  View Code
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noProjects>
+        <div class="text-center p-5 glass-card border-secondary border-opacity-10">
+          <i class="bi bi-folder-x display-1 text-muted opacity-50 mb-3 d-block"></i>
+          <h4 class="text-white">No public projects found</h4>
+          <p class="text-muted">Try adjusting your search filters.</p>
+        </div>
+      </ng-template>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section py-5 my-5">
+    <div class="container">
+      <div class="glass-card cta-wrapper p-5 text-center position-relative overflow-hidden">
+        <div class="position-relative z-index-1">
+          <h2 class="display-6 fw-bold text-white mb-4">Ready to transform your workflow?</h2>
+          <p class="text-muted mb-5 fs-5">Join thousands of developers using CodeSync today.</p>
+          <button [routerLink]="isLoggedIn() ? ['/dashboard'] : ['/register']" 
+                  class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg hover-scale">
+            {{ isLoggedIn() ? 'Return to Dashboard' : 'Create Your Account' }}
+          </button>
+        </div>
+        <div class="blob-gradient-secondary"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-5 border-top border-secondary border-opacity-10">
+    <div class="container text-center">
+      <p class="text-muted small mb-0">© 2026 CodeSync Platform. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
