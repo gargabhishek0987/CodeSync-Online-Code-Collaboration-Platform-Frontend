@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/codesync-frontend/browser",
+  "framework": "angular"
+}
