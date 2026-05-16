@@ -9,6 +9,8 @@ import { ProjectService } from '../../services/project.service';
 import { CollaborationService } from '../../services/collaboration.service';
 import { VersionService } from '../../services/version.service';
 import { NavbarComponent } from '../navbar/navbar';
+import { AuthService } from '../../services/auth.service';
+import { CommentService } from '../../services/comment.service';
 
 @Component({
   selector: 'app-editor',
@@ -21,6 +23,9 @@ export class EditorComponent implements OnInit {
   projectId!: number;
   files: any[] = [];
   selectedFile: any = null;
+  selectedFolder: any = null;
+  selectedFolderPath: string | null = null;
+  expandedNodes: Set<string> = new Set<string>();
   editorInstance: any;
   editorOptions = { theme: 'vs-dark', language: 'javascript' };
   code: string = '';
@@ -52,11 +57,17 @@ export class EditorComponent implements OnInit {
   newRequirement: string = '';
 
   // File Operations Modals
-  showCreateModal: boolean = false;
-  isCreatingFolder: boolean = false;
-  newItemName: string = '';
+  isInlineCreating: boolean = false;
+  inlineCreatingFolder: boolean = false;
+  inlineItemName: string = '';
   itemToDelete: any = null;
   showDeleteModal: boolean = false;
+
+  // Comments
+  comments: any[] = [];
+  showCommentBox: boolean = false;
+  commentLineNumber: number = 0;
+  newCommentContent: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -65,6 +76,8 @@ export class EditorComponent implements OnInit {
     private projectService: ProjectService,
     private collaborationService: CollaborationService,
     private versionService: VersionService,
+    private authService: AuthService,
+    private commentService: CommentService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef
   ) {}
@@ -81,12 +94,20 @@ export class EditorComponent implements OnInit {
   }
 
   setupCollaboration() {
-    const token = localStorage.getItem('token');
+    const token = this.authService.getToken();
+    const userObj = this.authService.currentUserValue;
+    // The user details are nested inside the 'user' property of the login response
+    const currentUsername = userObj?.user?.username || userObj?.username || userObj?.name || 'UnknownUser';
+    
+    console.log('Setting up collaboration. Token present:', !!token, 'User Identified:', currentUsername);
+
     if (token) {
+      console.log('Attempting STOMP connection to: http://localhost:8080/ws-collab/ws');
       this.collaborationService.connect(this.projectId, token);
       
       this.collaborationService.getCodeChanges().subscribe(change => {
-        if (change.fileId === this.selectedFile?.id && change.username !== localStorage.getItem('username')) {
+        if (change.fileId === this.selectedFile?.id && change.username !== currentUsername) {
+          console.log('Received remote change from:', change.username);
           this.isRemoteChange = true;
           this.code = change.content;
           this.isRemoteChange = false;
@@ -94,28 +115,78 @@ export class EditorComponent implements OnInit {
       });
 
       this.collaborationService.getPresence().subscribe(presence => {
-        if (presence.status === 'JOINED') {
-          if (!this.activeUsers.includes(presence.username)) {
-            this.activeUsers.push(presence.username);
-          }
-        } else if (presence.status === 'LEFT') {
-          this.activeUsers = this.activeUsers.filter(u => u !== presence.username);
+        console.log('Presence update received:', presence);
+        if (presence.activeUsers) {
+          // Use the full list from server, excluding self (optional, we show self separately)
+          this.activeUsers = presence.activeUsers.filter((u: string) => u !== currentUsername);
         }
       });
+      
+      // Listen for remote cursors
+      this.collaborationService.getCursors().subscribe(cursor => {
+        if (cursor.username !== currentUsername) {
+          this.updateRemoteCursor(cursor);
+        }
+      });
+    } else {
+      console.warn('Collaboration not started: No valid token found in AuthService.');
     }
   }
 
   onEditorInit(editor: any) {
     this.editorInstance = editor;
+
+    // Line numbers click detection for comments
+    this.editorInstance.onMouseDown((e: any) => {
+      if (e.target.type === 2) { // 2 = Gutter line numbers
+        const lineNumber = e.target.position.lineNumber;
+        this.openCommentBox(lineNumber);
+      }
+    });
+
     this.editorInstance.onDidChangeModelContent((event: any) => {
-      if (!this.isRemoteChange && this.selectedFile) {
+      if (!this.isRemoteChange && this.selectedFile && this.collaborationService.isConnected()) {
+        const username = this.authService.currentUserValue?.user?.username || this.authService.currentUserValue?.username;
         this.collaborationService.sendCodeChange(this.projectId, {
           fileId: this.selectedFile.id,
           content: this.code,
-          username: localStorage.getItem('username')
+          username: username
         });
       }
     });
+
+    this.editorInstance.onDidChangeCursorPosition((e: any) => {
+      if (this.selectedFile && this.collaborationService.isConnected()) {
+        const username = this.authService.currentUserValue?.user?.username || this.authService.currentUserValue?.username;
+        this.collaborationService.sendCursorMove(this.projectId, {
+          username: username,
+          fileId: this.selectedFile.id,
+          lineNumber: e.position.lineNumber,
+          column: e.position.column
+        });
+      }
+    });
+  }
+
+  remoteCursorDecorations: Map<string, string[]> = new Map();
+
+  updateRemoteCursor(cursor: any) {
+    if (!this.editorInstance || !this.selectedFile || cursor.fileId !== this.selectedFile.id) return;
+
+    const decorations = [
+      {
+        range: new (window as any).monaco.Range(cursor.lineNumber, cursor.column, cursor.lineNumber, cursor.column + 1),
+        options: {
+          className: `remote-cursor cursor-${cursor.username}`,
+          beforeContentClassName: `remote-cursor-label label-${cursor.username}`,
+          hoverMessage: { value: cursor.username }
+        }
+      }
+    ];
+
+    const oldDecorations = this.remoteCursorDecorations.get(cursor.username) || [];
+    const newDecorations = this.editorInstance.deltaDecorations(oldDecorations, decorations);
+    this.remoteCursorDecorations.set(cursor.username, newDecorations);
   }
 
   loadProjectDetails() {
@@ -140,35 +211,71 @@ export class EditorComponent implements OnInit {
       next: (data) => {
         console.log('Files loaded:', data);
         this.files = data;
-        if (this.files.length > 0 && !this.selectedFile) {
-          this.selectFile(this.files[0]);
+        // Auto-open first FILE only on initial load (when nothing is selected)
+        if (!this.selectedFile && !this.selectedFolderPath) {
+          const firstFile = this.findFirstFile(data);
+          if (firstFile) this.selectFile(firstFile);
         }
       },
       error: (err) => console.error('Error loading files:', err)
     });
   }
 
+  private findFirstFile(nodes: any[]): any {
+    for (const node of nodes) {
+      const isFolder = node.isFolder || node['folder'];
+      const isDeleted = node.isDeleted || node['deleted'];
+      
+      if (!isFolder && !isDeleted) return node;
+      if (node.children?.length) {
+        const found = this.findFirstFile(node.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
   createFile() {
-    this.isCreatingFolder = false;
-    this.newItemName = '';
-    this.showCreateModal = true;
+    this.isInlineCreating = true;
+    this.inlineCreatingFolder = false;
+    this.inlineItemName = '';
+    if (this.selectedFolderPath) this.expandedNodes.add(this.selectedFolderPath);
+    setTimeout(() => {
+      const el = document.getElementById('inline-input');
+      if (el) el.focus();
+    }, 50);
   }
 
   createFolder() {
-    this.isCreatingFolder = true;
-    this.newItemName = '';
-    this.showCreateModal = true;
+    this.isInlineCreating = true;
+    this.inlineCreatingFolder = true;
+    this.inlineItemName = '';
+    if (this.selectedFolderPath) this.expandedNodes.add(this.selectedFolderPath);
+    setTimeout(() => {
+      const el = document.getElementById('inline-input');
+      if (el) el.focus();
+    }, 50);
   }
 
-  confirmCreate() {
-    if (!this.newItemName.trim()) return;
+  cancelInlineCreate() {
+    setTimeout(() => {
+      this.isInlineCreating = false;
+    }, 200);
+  }
 
-    const name = this.newItemName.trim();
-    const isFolder = this.isCreatingFolder;
+  confirmInlineCreate() {
+    if (!this.inlineItemName.trim()) {
+      this.isInlineCreating = false;
+      return;
+    }
+
+    const name = this.inlineItemName.trim();
+    const isFolder = this.inlineCreatingFolder;
+    const path = this.selectedFolderPath ? `${this.selectedFolderPath}/${name}` : name;
 
     const payload = {
       projectId: this.projectId,
-      path: name,
+      path: path,
       name: name,
       language: isFolder ? null : this.getLanguageFromExtension(name),
       isFolder: isFolder,
@@ -177,18 +284,33 @@ export class EditorComponent implements OnInit {
 
     this.fileService.createFile(payload).subscribe({
       next: (newFile) => {
+        if (isFolder) {
+          this.selectedFolderPath = path;
+          // Use the actual object from backend which HAS the ID
+          this.selectedFolder = newFile;
+          this.expandedNodes.add(path);
+        }
+        this.isInlineCreating = false;
+        this.inlineItemName = '';
         this.loadFiles();
-        this.showCreateModal = false;
         if (!isFolder) {
-          this.selectFile(newFile);
+          setTimeout(() => this.selectFile(newFile), 300);
         }
       },
-      error: (err) => alert('Error creating: ' + err.message)
+      error: (err) => {
+        alert('Error creating: ' + (err.error?.message || err.message));
+        this.isInlineCreating = false;
+      }
     });
   }
 
   deleteFile(file: any, event: Event) {
     event.stopPropagation();
+    if (!file.id) {
+      console.error('Cannot delete: Item has no ID', file);
+      this.loadFiles(); // Refresh to try and get IDs
+      return;
+    }
     this.itemToDelete = file;
     this.showDeleteModal = true;
   }
@@ -198,15 +320,27 @@ export class EditorComponent implements OnInit {
 
     this.fileService.deleteFile(this.itemToDelete.id).subscribe({
       next: () => {
-        this.loadFiles();
+        const deletedPath = this.itemToDelete.path;
+        
+        // Remove from expansion tracking
+        this.expandedNodes.delete(deletedPath);
+        
+        // If current selection was inside deleted item, reset it
+        if (this.selectedFolderPath?.startsWith(deletedPath)) {
+          this.selectedFolderPath = null;
+          this.selectedFolder = null;
+        }
+        
         if (this.selectedFile?.id === this.itemToDelete.id) {
           this.selectedFile = null;
           this.code = '';
         }
+        
         this.showDeleteModal = false;
         this.itemToDelete = null;
+        this.loadFiles();
       },
-      error: (err) => alert('Error deleting: ' + err.message)
+      error: (err) => alert('Error deleting: ' + (err.error?.message || err.message))
     });
   }
 
@@ -240,7 +374,16 @@ export class EditorComponent implements OnInit {
   }
 
   selectFile(file: any) {
-    if (file.isFolder) return;
+    // Handle both Jackson serializations: isFolder (with @JsonProperty) and folder (without)
+    const isFolder = file.isFolder || file['folder'];
+    if (isFolder) {
+      this.selectedFolder = file;
+      this.selectedFolderPath = file.path;
+      this.selectedFile = null;
+      this.toggleExpand(file.path);
+      return;
+    }
+    // For a file, keep selectedFolderPath as-is so user can still create siblings
     
     console.log('Selecting file:', file);
     this.fileService.getFile(file.id).subscribe({
@@ -250,6 +393,7 @@ export class EditorComponent implements OnInit {
           this.selectedFile = fullFile;
           this.code = fullFile.content || '';
           this.editorOptions = { ...this.editorOptions, language: fullFile.language || 'javascript' };
+          this.loadComments();
           this.cdr.detectChanges();
         }
       },
@@ -377,5 +521,65 @@ export class EditorComponent implements OnInit {
       this.code = snapshot.content;
       this.saveFile(); // Save the restored content
     }
+  }
+
+  isExpanded(path: string): boolean {
+    return this.expandedNodes.has(path);
+  }
+
+  toggleExpand(path: string) {
+    if (this.expandedNodes.has(path)) {
+      this.expandedNodes.delete(path);
+    } else {
+      this.expandedNodes.add(path);
+    }
+  }
+
+  // Comment Methods
+  loadComments() {
+    if (!this.selectedFile) return;
+    this.commentService.getFileComments(this.selectedFile.id).subscribe(data => {
+      this.comments = data;
+      this.updateCommentWidgets();
+    });
+  }
+
+  openCommentBox(lineNumber: number) {
+    this.commentLineNumber = lineNumber;
+    this.newCommentContent = '';
+    this.showCommentBox = true;
+    this.cdr.detectChanges();
+  }
+
+  submitComment() {
+    if (!this.newCommentContent.trim() || !this.selectedFile) return;
+    
+    const userObj = this.authService.currentUserValue;
+    const currentUsername = userObj?.user?.username || userObj?.username || 'Anonymous';
+
+    const comment = {
+      fileId: this.selectedFile.id,
+      lineNumber: this.commentLineNumber,
+      content: this.newCommentContent.trim(),
+      userId: currentUsername
+    };
+
+    this.commentService.addComment(comment).subscribe({
+      next: () => {
+        this.showCommentBox = false;
+        this.loadComments();
+      },
+      error: (err) => alert('Error posting comment: ' + err.message)
+    });
+  }
+
+  commentWidgets: any[] = [];
+  updateCommentWidgets() {
+    if (!this.editorInstance) return;
+    
+    // Clear old widgets if monaco is available
+    // For simplicity in this demo, we'll just show them in a sidebar or overlay
+    // But we'll at least trigger a UI refresh
+    this.cdr.detectChanges();
   }
 }

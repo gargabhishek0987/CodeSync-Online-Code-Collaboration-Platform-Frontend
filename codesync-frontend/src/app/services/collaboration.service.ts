@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Client, Message, IMessage } from '@stomp/stompjs';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, BehaviorSubject } from 'rxjs';
 import SockJS from 'sockjs-client';
 
 @Injectable({
@@ -11,6 +11,7 @@ export class CollaborationService {
   private codeChangesSubject = new Subject<any>();
   private cursorsSubject = new Subject<any>();
   private presenceSubject = new Subject<any>();
+  private connectedSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private ngZone: NgZone) {}
 
@@ -25,6 +26,7 @@ export class CollaborationService {
       debug: (msg) => console.log('STOMP:', msg),
       onConnect: (frame) => {
         console.log('Connected to WebSocket');
+        this.connectedSubject.next(true);
         
         // Join project
         this.stompClient?.publish({
@@ -64,7 +66,12 @@ export class CollaborationService {
   disconnect() {
     if (this.stompClient) {
       this.stompClient.deactivate();
+      this.connectedSubject.next(false);
     }
+  }
+
+  isConnected(): boolean {
+    return this.connectedSubject.value;
   }
 
   sendCodeChange(projectId: number, change: any) {

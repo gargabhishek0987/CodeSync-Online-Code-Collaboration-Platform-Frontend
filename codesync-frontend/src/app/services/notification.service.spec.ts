@@ -23,47 +23,54 @@ describe('NotificationService', () => {
     expect(service).toBeTruthy();
   });
 
+  // Test: Fetch all notifications for a user
   it('should fetch notifications for a user', () => {
-    const mockNotifications = [{ id: '1', message: 'Test' }];
-    const userId = 'user123';
+    const mockNotifications = [
+      { id: '1', message: 'admin mentioned you in a comment', type: 'MENTION', read: false },
+      { id: '2', message: 'Project created successfully', type: 'PROJECT_CREATED', read: true }
+    ];
 
-    service.getNotifications(userId).subscribe(notifications => {
-      expect(notifications.length).toBe(1);
-      expect(notifications).toEqual(mockNotifications);
+    service.getNotifications('amitrai').subscribe(notifications => {
+      expect(notifications.length).toBe(2);
+      expect(notifications[0].type).toBe('MENTION');
+      expect(notifications[1].read).toBeTrue();
     });
 
-    const req = httpMock.expectOne(`http://localhost:8080/api/notifications/user/${userId}`);
+    const req = httpMock.expectOne('http://localhost:8080/api/notifications/user/amitrai');
     expect(req.request.method).toBe('GET');
     req.flush(mockNotifications);
   });
 
+  // Test: Fetch unread notification count
   it('should fetch unread count', () => {
-    const mockCount = 5;
-    const userId = 'user123';
-
-    service.getUnreadCount(userId).subscribe(count => {
-      expect(count).toBe(mockCount);
+    service.getUnreadCount('amitrai').subscribe(count => {
+      expect(count).toBe(3);
     });
 
-    const req = httpMock.expectOne(`http://localhost:8080/api/notifications/user/${userId}/unread-count`);
+    const req = httpMock.expectOne('http://localhost:8080/api/notifications/user/amitrai/unread-count');
     expect(req.request.method).toBe('GET');
-    req.flush(mockCount);
+    req.flush(3);
   });
 
-  it('should mark notification as read', () => {
-    const notificationId = '1';
-
-    service.markAsRead(notificationId).subscribe(response => {
+  // Test: Mark a notification as read
+  it('should mark notification as read via PATCH', () => {
+    service.markAsRead('notif-abc').subscribe(response => {
       expect(response).toBeTruthy();
     });
 
-    const req = httpMock.expectOne(`http://localhost:8080/api/notifications/${notificationId}/read`);
+    const req = httpMock.expectOne('http://localhost:8080/api/notifications/notif-abc/read');
     expect(req.request.method).toBe('PATCH');
-    req.flush({});
+    req.flush({ id: 'notif-abc', read: true });
   });
 
-  it('should handle disconnect', () => {
-    // Mock stompClient
+  // Test: WebSocket disconnect
+  it('should handle disconnect gracefully when no client exists', () => {
+    // When stompClient is null, disconnect should not throw
+    expect(() => service.disconnect()).not.toThrow();
+  });
+
+  // Test: WebSocket disconnect when client exists
+  it('should call deactivate on disconnect', () => {
     (service as any).stompClient = {
       deactivate: jasmine.createSpy('deactivate')
     };
@@ -71,5 +78,12 @@ describe('NotificationService', () => {
     service.disconnect();
 
     expect((service as any).stompClient.deactivate).toHaveBeenCalled();
+  });
+
+  // Test: getNewNotifications should return an Observable
+  it('should return an Observable from getNewNotifications', () => {
+    const obs = service.getNewNotifications();
+    expect(obs).toBeTruthy();
+    expect(typeof obs.subscribe).toBe('function');
   });
 });

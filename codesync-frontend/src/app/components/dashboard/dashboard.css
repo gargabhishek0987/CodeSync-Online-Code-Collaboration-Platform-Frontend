@@ -1,7 +1,8 @@
 .project-card {
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease, border-color 0.5s ease;
   cursor: pointer;
   z-index: 1;
+  background: linear-gradient(145deg, rgba(20, 25, 35, 0.6), rgba(10, 15, 20, 0.8));
 }
 
 .project-card::before {
@@ -9,16 +10,16 @@
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
   z-index: 0;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
 
 .project-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.15);
+  border-color: rgba(0, 242, 254, 0.4);
   z-index: 10;
 }
 
@@ -27,22 +28,28 @@
 }
 
 .group-hover-bg {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .project-card:hover .group-hover-bg {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  color: #000;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
 }
 
 .bg-dark-soft {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(15, 20, 30, 0.8);
+}
+
+.hover-opacity-100 {
+  transition: all 0.3s ease;
 }
 
 .hover-opacity-100:hover {
   opacity: 1 !important;
-  background-color: rgba(220, 53, 69, 0.2);
+  background-color: rgba(255, 8, 68, 0.2);
+  color: var(--accent-color);
 }
 
 .modal-backdrop {
@@ -51,21 +58,29 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(12px) saturate(120%);
   z-index: 1000;
 }
 
 .modal-card {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 242, 254, 0.1);
+  background: rgba(15, 18, 25, 0.95);
 }
 
 .focus-ring-primary:focus {
   border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25) !important;
+  box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.2) !important;
 }
 
 .border-dashed {
   border-style: dashed !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+.empty-state-icon {
+  background: rgba(0, 242, 254, 0.1) !important;
+  color: var(--primary-color) !important;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+}
+

@@ -60,6 +60,14 @@ export class AuthService {
     return this.http.delete<void>(`${this.apiUrl}/users/${id}`);
   }
 
+  suspendUser(username: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/users/${username}/suspend`, {});
+  }
+
+  reactivateUser(username: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/users/${username}/reactivate`, {});
+  }
+
   isLoggedIn(): boolean {
     return !!this.currentUserValue;
   }

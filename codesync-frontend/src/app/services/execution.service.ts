@@ -21,4 +21,8 @@ export class ExecutionService {
   getAllJobs(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/admin/all`);
   }
+
+  cancelJob(jobId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${jobId}/cancel`, {});
+  }
 }

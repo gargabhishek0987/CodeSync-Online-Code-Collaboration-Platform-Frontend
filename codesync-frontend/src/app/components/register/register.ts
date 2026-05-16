@@ -19,6 +19,12 @@ export class RegisterComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
+    const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\S+$).{8,}$/;
+    if (!passwordRegex.test(this.user.password)) {
+      this.error = 'Password must be at least 8 characters, include uppercase, lowercase, a number, and a special character.';
+      return;
+    }
+
     this.loading = true;
     this.authService.register(this.user).subscribe({
       next: () => this.router.navigate(['/login']),

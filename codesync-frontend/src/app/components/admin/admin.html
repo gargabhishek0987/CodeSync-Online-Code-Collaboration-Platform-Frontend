@@ -73,25 +73,40 @@
       <div class="col-12">
         <div class="glass-card overflow-hidden">
           <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 p-0">
-            <ul class="nav nav-tabs border-0 px-3">
+            <ul class="nav nav-tabs border-0 px-3 flex-nowrap overflow-auto hide-scrollbar">
               <li class="nav-item">
-                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'users'" (click)="activeTab = 'users'">
-                  <i class="bi bi-people-fill me-2"></i>User Management
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'users'" (click)="activeTab = 'users'">
+                  <i class="bi bi-people-fill me-2"></i>Users
                 </button>
               </li>
               <li class="nav-item">
-                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'projects'" (click)="activeTab = 'projects'">
-                  <i class="bi bi-folder-fill me-2"></i>Project Management
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'projects'" (click)="activeTab = 'projects'">
+                  <i class="bi bi-folder-fill me-2"></i>Projects
                 </button>
               </li>
               <li class="nav-item">
-                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'execution'" (click)="activeTab = 'execution'">
-                  <i class="bi bi-play-circle-fill me-2"></i>Execution Jobs
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'sessions'" (click)="activeTab = 'sessions'">
+                  <i class="bi bi-diagram-3-fill me-2"></i>Sessions
                 </button>
               </li>
               <li class="nav-item">
-                <button class="nav-link py-3 px-4 border-0 text-white opacity-50" [class.active-tab]="activeTab === 'analytics'" (click)="activeTab = 'analytics'">
-                  <i class="bi bi-graph-up-arrow me-2"></i>System Analytics
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'execution'" (click)="activeTab = 'execution'">
+                  <i class="bi bi-play-circle-fill me-2"></i>Executions
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'languages'" (click)="activeTab = 'languages'">
+                  <i class="bi bi-code-slash me-2"></i>Languages
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'broadcast'" (click)="activeTab = 'broadcast'">
+                  <i class="bi bi-broadcast me-2"></i>Broadcast
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-3 px-4 border-0 text-white opacity-50 text-nowrap" [class.active-tab]="activeTab === 'analytics'" (click)="activeTab = 'analytics'">
+                  <i class="bi bi-graph-up-arrow me-2"></i>Analytics
                 </button>
               </li>
             </ul>
@@ -106,6 +121,7 @@
                     <tr>
                       <th class="border-secondary border-opacity-25">User</th>
                       <th class="border-secondary border-opacity-25">Email</th>
+                      <th class="border-secondary border-opacity-25">Status</th>
                       <th class="border-secondary border-opacity-25">Role</th>
                       <th class="border-secondary border-opacity-25">Joined</th>
                       <th class="border-secondary border-opacity-25 text-end">Actions</th>
@@ -123,14 +139,20 @@
                       </td>
                       <td class="text-muted">{{ user.email }}</td>
                       <td>
+                         <span class="badge" [ngClass]="user.isActive !== false ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25'">
+                           {{ user.isActive !== false ? 'Active' : 'Suspended' }}
+                         </span>
+                      </td>
+                      <td>
                         <span class="badge" [ngClass]="user.role === 'ADMIN' ? 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25' : 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25'">
                           {{ user.role }}
                         </span>
                       </td>
                       <td class="text-muted small">{{ user.createdAt | date:'mediumDate' }}</td>
                       <td class="text-end">
-                        <button class="btn btn-icon text-muted hover-text-white me-2"><i class="bi bi-pencil-square"></i></button>
-                        <button class="btn btn-icon text-muted hover-text-danger" (click)="deleteUser(user.id)"><i class="bi bi-trash3"></i></button>
+                        <button *ngIf="user.isActive !== false" class="btn btn-icon text-warning hover-text-white me-2" (click)="suspendUser(user)" title="Suspend User"><i class="bi bi-pause-circle"></i></button>
+                        <button *ngIf="user.isActive === false" class="btn btn-icon text-success hover-text-white me-2" (click)="reactivateUser(user)" title="Reactivate User"><i class="bi bi-play-circle"></i></button>
+                        <button class="btn btn-icon text-danger hover-text-white" (click)="deleteUser(user.id)" title="Permanently Delete"><i class="bi bi-trash3"></i></button>
                       </td>
                     </tr>
                   </tbody>
@@ -163,9 +185,42 @@
                         </span>
                       </td>
                       <td class="text-end">
-                        <button [routerLink]="['/editor', project.id]" class="btn btn-icon text-muted hover-text-primary me-2"><i class="bi bi-eye"></i></button>
-                        <button class="btn btn-icon text-muted hover-text-danger" (click)="deleteProject(project.id)"><i class="bi bi-trash3"></i></button>
+                        <button [routerLink]="['/editor', project.id]" class="btn btn-icon text-muted hover-text-primary me-2" title="Inspect Project"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-icon text-danger hover-text-white" (click)="deleteProject(project.id)" title="Delete for Policy Violation"><i class="bi bi-trash3"></i></button>
                       </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Collaboration Sessions Tab -->
+            <div *ngIf="activeTab === 'sessions'" class="animate-fade-in">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table">
+                  <thead>
+                    <tr>
+                      <th class="border-secondary border-opacity-25">Session ID</th>
+                      <th class="border-secondary border-opacity-25">Project ID</th>
+                      <th class="border-secondary border-opacity-25">Active Users</th>
+                      <th class="border-secondary border-opacity-25">Started</th>
+                      <th class="border-secondary border-opacity-25 text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let session of collaborationSessions">
+                      <td class="text-white font-monospace small">{{ session.id }}</td>
+                      <td class="text-muted">{{ session.projectId }}</td>
+                      <td>
+                        <span *ngFor="let u of session.activeUsers" class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">{{ u }}</span>
+                      </td>
+                      <td class="text-muted small">{{ session.startedAt | date:'short' }}</td>
+                      <td class="text-end">
+                        <button class="btn btn-icon text-warning hover-text-white" (click)="terminateSession(session.id)" title="Terminate Session"><i class="bi bi-power"></i></button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="collaborationSessions.length === 0">
+                      <td colspan="5" class="text-center text-muted py-4">No active collaboration sessions</td>
                     </tr>
                   </tbody>
                 </table>
@@ -182,6 +237,7 @@
                       <th class="border-secondary border-opacity-25">Language</th>
                       <th class="border-secondary border-opacity-25">Status</th>
                       <th class="border-secondary border-opacity-25">Created</th>
+                      <th class="border-secondary border-opacity-25 text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -192,16 +248,77 @@
                         <span class="badge" [ngClass]="{
                           'bg-success bg-opacity-10 text-success border border-success border-opacity-25': job.status === 'COMPLETED',
                           'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25': job.status === 'PENDING' || job.status === 'RUNNING',
-                          'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25': job.status === 'FAILED'
+                          'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25': job.status === 'FAILED',
+                          'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25': job.status === 'CANCELLED'
                         }">
                           {{ job.status }}
                         </span>
                       </td>
                       <td class="text-muted small">{{ job.createdAt | date:'short' }}</td>
+                      <td class="text-end">
+                        <button *ngIf="job.status === 'PENDING' || job.status === 'RUNNING'" class="btn btn-icon text-danger hover-text-white" (click)="cancelJob(job.id)" title="Cancel Job"><i class="bi bi-x-circle"></i></button>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            <!-- Languages Sandbox Tab -->
+            <div *ngIf="activeTab === 'languages'" class="animate-fade-in">
+              <div class="row mb-4">
+                <div class="col-md-8">
+                  <div class="d-flex gap-2">
+                    <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Language Name (e.g. Ruby)" [(ngModel)]="newLanguage.name">
+                    <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Docker Image (e.g. ruby:3.1-alpine)" [(ngModel)]="newLanguage.image">
+                    <button class="btn btn-primary text-nowrap" (click)="addLanguage()"><i class="bi bi-plus-lg me-1"></i> Add Language</button>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table">
+                  <thead>
+                    <tr>
+                      <th class="border-secondary border-opacity-25">Language</th>
+                      <th class="border-secondary border-opacity-25">Sandbox Image</th>
+                      <th class="border-secondary border-opacity-25">Status</th>
+                      <th class="border-secondary border-opacity-25 text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let lang of supportedLanguages">
+                      <td class="text-white fw-bold">{{ lang.name }}</td>
+                      <td class="text-muted font-monospace small">{{ lang.image }}</td>
+                      <td>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">{{ lang.status }}</span>
+                      </td>
+                      <td class="text-end">
+                        <button class="btn btn-icon text-danger hover-text-white" (click)="removeLanguage(lang.id)" title="Remove Language"><i class="bi bi-trash3"></i></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Broadcast Tab -->
+            <div *ngIf="activeTab === 'broadcast'" class="animate-fade-in">
+               <div class="row">
+                 <div class="col-md-8">
+                   <div class="glass-card p-4">
+                     <h5 class="text-white mb-3">System-wide Broadcast</h5>
+                     <p class="text-muted small mb-4">Send a notification to all registered users. This will appear in their in-app notification center and via email.</p>
+                     
+                     <div class="mb-3">
+                       <label class="form-label text-muted small">Message</label>
+                       <textarea class="form-control bg-dark text-white border-secondary" rows="4" [(ngModel)]="broadcastMessage" placeholder="Type your broadcast message here..."></textarea>
+                     </div>
+                     <button class="btn btn-primary" [disabled]="!broadcastMessage.trim()" (click)="sendBroadcast()">
+                       <i class="bi bi-send-fill me-2"></i> Send to All Users
+                     </button>
+                   </div>
+                 </div>
+               </div>
             </div>
 
             <!-- Analytics Tab -->
@@ -212,37 +329,50 @@
                      <h5 class="text-white mb-4">Platform Overview</h5>
                      <div class="d-flex flex-column gap-3">
                        <div class="d-flex justify-content-between align-items-center">
-                         <span class="text-muted">Total Users</span>
+                         <span class="text-muted">Total Registered Users</span>
                          <span class="text-white fw-bold">{{ stats.totalUsers }}</span>
                        </div>
                        <div class="progress bg-dark" style="height: 6px;">
                          <div class="progress-bar bg-primary" role="progressbar" [style.width]="'100%'"></div>
                        </div>
+                       
                        <div class="d-flex justify-content-between align-items-center mt-2">
-                         <span class="text-muted">Total Projects</span>
+                         <span class="text-muted">Total Projects Created</span>
                          <span class="text-white fw-bold">{{ stats.totalProjects }}</span>
                        </div>
                        <div class="progress bg-dark" style="height: 6px;">
                          <div class="progress-bar bg-success" role="progressbar" [style.width]="'100%'"></div>
                        </div>
+
                        <div class="d-flex justify-content-between align-items-center mt-2">
-                         <span class="text-muted">Execution Jobs</span>
-                         <span class="text-white fw-bold">{{ executionJobs.length }}</span>
+                         <span class="text-muted">Total Code Executions</span>
+                         <span class="text-white fw-bold">{{ stats.totalExecutions }}</span>
                        </div>
                        <div class="progress bg-dark" style="height: 6px;">
                          <div class="progress-bar bg-info" role="progressbar" [style.width]="'100%'"></div>
                        </div>
+                       
+                       <div class="d-flex justify-content-between align-items-center mt-2">
+                         <span class="text-muted">Active Collaboration Sessions</span>
+                         <span class="text-white fw-bold">{{ stats.activeSessions }}</span>
+                       </div>
+                       <div class="progress bg-dark" style="height: 6px;">
+                         <div class="progress-bar bg-warning" role="progressbar" [style.width]="(stats.activeSessions > 0 ? 100 : 0) + '%'"></div>
+                       </div>
                      </div>
                    </div>
                  </div>
+                 
                  <div class="col-md-6">
-                   <div class="glass-card p-4">
-                     <h5 class="text-white mb-4">Language Distribution</h5>
-                     <div class="text-center py-4">
-                       <div class="bg-primary bg-opacity-10 p-4 rounded-circle d-inline-block mb-3">
-                         <i class="bi bi-pie-chart-fill fs-1 text-primary"></i>
+                   <div class="glass-card p-4 h-100">
+                     <h5 class="text-white mb-4">Executions by Language</h5>
+                     <div class="d-flex flex-column gap-3">
+                       <div *ngFor="let lang of supportedLanguages" class="d-flex align-items-center gap-3">
+                         <div class="text-white font-monospace" style="width: 80px;">{{ lang.name }}</div>
+                         <div class="progress bg-dark flex-grow-1" style="height: 10px;">
+                           <div class="progress-bar" [ngClass]="lang.id === 'js' ? 'bg-warning' : lang.id === 'py' ? 'bg-primary' : 'bg-danger'" [style.width]="getLanguageUsage(lang.id) + '%'"></div>
+                         </div>
                        </div>
-                       <p class="text-muted small">Language analytics synchronized from system metadata.</p>
                      </div>
                    </div>
                  </div>
@@ -255,3 +385,4 @@
     </div>
   </div>
 </div>
+
