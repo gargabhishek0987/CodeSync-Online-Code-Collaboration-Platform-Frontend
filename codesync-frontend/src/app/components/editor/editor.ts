@@ -138,7 +138,8 @@ export class EditorComponent implements OnInit {
 
     // Line numbers click detection for comments
     this.editorInstance.onMouseDown((e: any) => {
-      if (e.target.type === 2) { // 2 = Gutter line numbers
+      // 2 = GUTTER_GLYPH_MARGIN, 3 = GUTTER_LINE_NUMBERS, 4 = GUTTER_LINE_DECORATIONS
+      if (e.target.type === 2 || e.target.type === 3 || e.target.type === 4) {
         const lineNumber = e.target.position.lineNumber;
         this.openCommentBox(lineNumber);
       }
